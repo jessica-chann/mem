@@ -3,7 +3,7 @@ module classicMode (
     input  logic        start, done_gen_pattern, received_input, is_equal, play_again, 
 
     output logic        gen_pattern, incr_score, clr
-)
+);
 
     typedef enum logic [1:0] {INIT, PATTERN_GEN, WAIT, GAME_OVER} state_t;
     state_t                                                       state, next_state;
@@ -28,55 +28,54 @@ module classicMode (
     end
 
     // output logic
-    gen_pattern = (state_t == PATTERN_GEN) ? 1 : 0;
-    incr_score = (state_t == WAIT && is_equal) ? 1 : 0;
-    clr = (state_t == INIT) ? 1 : 0;
+    assign gen_pattern = (state == PATTERN_GEN) ? 1 : 0;
+    assign incr_score = (state == WAIT && is_equal) ? 1 : 0;
+    assign clr = (state == INIT) ? 1 : 0;
 
-endmodule classicMode
+endmodule : classicMode
 
 
 module counter (
     input  logic        clk, rst_n, en, clr,
     output logic [15:0] count
-)
+);
     always_ff @(posedge clk or negedge rst_n) begin
         if (~rst_n || clr) count <= 0;
         else count <= count + 1;
     end
-endmodule counter
+endmodule : counter
 
 
 module comparator (
     input  logic        received_input,
     input  logic [15:0] game_pattern, input_pattern,
-    output logic        is_eq     
-)
-    is_equal = (received_input && (game_pattern == input_pattern));
+    output logic        is_equal   
+);
+    assign is_equal = (received_input && (game_pattern == input_pattern));
 
-endmodule comparator
+endmodule : comparator
 
 
 module input_handler (
-    input  logic        clk, rst_n, in,
+    input  logic        clk, rst_n, in, en,
     input  logic [15:0] count,
     output logic        received_input,
     output logic [15:0] user_guess
-)
+);
     logic [15:0] bit_counter;
 
     always_ff @(posedge clk or negedge rst_n) begin
-        if (!rst_n) begin
+      if (~rst_n) begin
             user_guess      <= 16'd0;
             bit_counter     <= 16'd0;
-            received_input  <= 1'b0;
-        end else begin
-            if (!received_input) begin
+      end else if (en) begin
+            if (bit_counter != count) begin
                 user_guess <= {user_guess[14:0], in};
                 bit_counter <= bit_counter + 1;
             end
         end
     end
 
-    recieved_input = (bit_counter == count);
+    assign received_input = (bit_counter == count);
 
-endmodule input_handler
+endmodule : input_handler
