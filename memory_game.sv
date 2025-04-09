@@ -2,11 +2,10 @@ module classicMode (
     input  logic        clk, rst_n,
     input  logic        start, done_gen_pattern, received_input, is_equal, play_again, 
 
-    output logic        gen_pattern, incr_score, clr
+    output logic        gen_pattern, incr_score, clr, input_handler_en
 );
 
-    typedef enum logic [1:0] {INIT, PATTERN_GEN, WAIT, GAME_OVER} state_t;
-    state_t                                                       state, next_state;
+    enum logic [1:0] {INIT, PATTERN_GEN, WAIT, GAME_OVER} state, next_state;
 
     always_ff @(posedge clk or negedge rst_n) begin
         if (~rst_n) state <= INIT;
@@ -30,6 +29,8 @@ module classicMode (
     // output logic
     assign gen_pattern = (state == PATTERN_GEN) ? 1 : 0;
     assign incr_score = (state == WAIT && is_equal) ? 1 : 0;
+    // assign input_handler_en = (state == PATTERN_GEN && done_gen_pattern) || state == WAIT));
+  	assign input_handler_en = (state == WAIT);
     assign clr = (state == INIT) ? 1 : 0;
 
 endmodule : classicMode
@@ -57,7 +58,7 @@ endmodule : comparator
 
 
 module input_handler (
-    input  logic        clk, rst_n, in, en,
+    input  logic        clk, rst_n, in, en, clr,
     input  logic [15:0] count,
     output logic        received_input,
     output logic [15:0] user_guess
@@ -65,7 +66,7 @@ module input_handler (
     logic [15:0] bit_counter;
 
     always_ff @(posedge clk or negedge rst_n) begin
-      if (~rst_n) begin
+      if (~rst_n && clr) begin
             user_guess      <= 16'd0;
             bit_counter     <= 16'd0;
       end else if (en) begin
