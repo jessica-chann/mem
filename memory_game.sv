@@ -2,7 +2,7 @@ module classicMode (
     input  logic        clk, rst_n,
     input  logic        start, received_input, is_equal, play_again, 
 
-    output logic        gen_pattern, incr_score, clr, input_handler_en
+    output logic        gen_pattern, incr_score, clr, input_handler_en, game_over
 );
 
     enum logic [1:0] {INIT, PATTERN_GEN, WAIT, GAME_OVER} state, next_state;
@@ -33,6 +33,7 @@ module classicMode (
   	// assign input_handler_en = (state == PATTERN_GEN ) || state == WAIT));
     assign input_handler_en = (state == WAIT && next_state == WAIT);
     assign clr = (state == INIT || play_again == 1) ? 1 : 0;
+  	assign game_over = (next_state == GAME_OVER);
 
 endmodule : classicMode
 
@@ -78,12 +79,13 @@ endmodule : shift_reg
 
 
 module counter (
-    input  logic        clk, rst_n, en, clr,
+    input  logic        clk, rst_n, en, clr, game_over,
     output logic [15:0] count
 );
     always_ff @(posedge clk or negedge rst_n) begin
         if (~rst_n || clr) count <= 1;
         else if (en) count <= count + 1;
+        else if (game_over) count <= count - 1;
     end
 endmodule : counter
 

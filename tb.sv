@@ -7,7 +7,7 @@ module testbench();
     logic start, received_input, is_equal, play_again;
     logic in;
     logic clr;
-    logic gen_pattern, incr_score;
+    logic gen_pattern, incr_score, game_over;
   
   	logic input_handler_en;
     logic [15:0] count;
@@ -28,6 +28,7 @@ module testbench();
         .gen_pattern(gen_pattern),
         .incr_score(incr_score),
         .clr(clr),
+        .game_over(game_over),
         .input_handler_en(input_handler_en)
     );
 
@@ -51,6 +52,7 @@ module testbench();
         .rst_n(rst_n), 
         .en(incr_score),
         .clr(clr),
+        .game_over(game_over),
         .count(count)
     );
 
@@ -108,8 +110,8 @@ module testbench();
         $display("bit_generated = %b", bit_generated);
       	
         $display("input_handler_en = %b", input_handler_en);
-      	for (int i = 0; i < 1; i++) begin
-            in <= random_pattern[1 - i];  // Shift in MSB first
+      	for (int i = 1; i > 0; i--) begin
+          in <= random_pattern[i - 1];  // Shift in MSB first
             @(posedge clk);  // Synchronize to the rising edge of clk
             $display("Cycle %0d: in = %b, user_guess = %b, received_input = %b", 
                      i+1, in, user_guess, received_input);
@@ -120,14 +122,28 @@ module testbench();
         //@(posedge clk);
 
         $display("input_handler_en = %b", input_handler_en);
-      for (int i = 0; i < 2; i++) begin
-            in <= random_pattern[1 - i];  // Shift in MSB first
+      	for (int i = 2; i > 0; i--) begin
+          in <= random_pattern[i - 1];  // Shift in MSB first
+            @(posedge clk);  // Synchronize to the rising edge of clk
+            $display("Cycle %0d: in = %b, user_guess = %b, received_input = %b", 
+                     i+1, in, user_guess, received_input);
+        end
+
+        @(posedge clk); // should be back to pattern gen
+        // count <= 'd2;
+        //@(posedge clk);
+
+        $display("input_handler_en = %b", input_handler_en);
+      	for (int i = 3; i > 0; i--) begin
+          in <= random_pattern[i - 1];  // Shift in MSB first
             @(posedge clk);  // Synchronize to the rising edge of clk
             $display("Cycle %0d: in = %b, user_guess = %b, received_input = %b", 
                      i+1, in, user_guess, received_input);
         end
 
         @(posedge clk);
+      	@(posedge clk);
+      	@(posedge clk);
         $display("Final: user_guess = %b, received_input = %b", user_guess, received_input);
 
         $finish();
