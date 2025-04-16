@@ -114,7 +114,7 @@ module testbench();
           in <= random_pattern[i - 1];  // Shift in MSB first
             @(posedge clk);  // Synchronize to the rising edge of clk
             $display("Cycle %0d: in = %b, user_guess = %b, received_input = %b", 
-                     i+1, in, user_guess, received_input);
+                     i, in, user_guess, received_input);
         end
 
         @(posedge clk); // should be back to pattern gen
@@ -126,7 +126,7 @@ module testbench();
           in <= random_pattern[i - 1];  // Shift in MSB first
             @(posedge clk);  // Synchronize to the rising edge of clk
             $display("Cycle %0d: in = %b, user_guess = %b, received_input = %b", 
-                     i+1, in, user_guess, received_input);
+                     i, in, user_guess, received_input);
         end
 
         @(posedge clk); // should be back to pattern gen
@@ -138,7 +138,7 @@ module testbench();
           in <= random_pattern[i - 1];  // Shift in MSB first
             @(posedge clk);  // Synchronize to the rising edge of clk
             $display("Cycle %0d: in = %b, user_guess = %b, received_input = %b", 
-                     i+1, in, user_guess, received_input);
+                     i, in, user_guess, received_input);
         end
 
         @(posedge clk);
